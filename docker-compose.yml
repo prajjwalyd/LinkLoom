@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: url_shortener_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d  # Mount the database initialization script
+    ports:
+      - "5432:5432"
+
+  url_shortening_service:
+    build:
+      context: ./url_shortening_service
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      FLASK_APP: app
+      SQLALCHEMY_DATABASE_URI: postgresql://user:password@db:5432/url_shortener_db
+    depends_on:
+      - db
