@@ -1,15 +1,18 @@
-from flask import request, jsonify, redirect, url_for
+from flask import request, jsonify
 from app import app, db
-from app.models import URL, Analytics
+from app.models import URL
 import random
 import string
 import redis
 import json
 
+
+# postgres is kinda useless now
+
 # Redis configuration
 redis_host = "redis"
 redis_port = 6379
-redis_channel = "url_channel"
+redis_stream = "url_stream"
 
 redis_client = redis.StrictRedis(host=redis_host, port=redis_port, decode_responses=True)
 
@@ -39,12 +42,14 @@ def shorten_url():
     db.session.add(new_url)
     db.session.commit()
 
-    # Publish to Redis
+    # Publish to Redis Stream
     redis_data = {
-        'long_url': long_url,
-        'short_url': short_url
+        'data': json.dumps({
+            'long_url': long_url,
+            'short_url': short_url
+        })
     }
-    redis_client.publish(redis_channel, json.dumps(redis_data))
+    redis_client.xadd(redis_stream, redis_data)
 
     return jsonify({
         'short_url': short_url,

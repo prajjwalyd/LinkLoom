@@ -12,7 +12,10 @@ import (
 )
 
 var (
-	redisClient *redis.Client
+	redisClient  *redis.Client
+	streamName   = "url_stream"
+	groupName    = "url_group"
+	consumerName = "url_consumer"
 )
 
 type URLMapping struct {
@@ -27,31 +30,56 @@ func main() {
 	})
 	ctx := context.Background()
 
-	// Subscribe to Redis channel
-	subscriber := redisClient.Subscribe(ctx, "url_channel")
-	defer subscriber.Close()
+	// Create Consumer Group if not exists
+	err := redisClient.XGroupCreateMkStream(ctx, streamName, groupName, "$").Err()
+	if err != nil && err.Error() != "BUSYGROUP Consumer Group name already exists" {
+		log.Fatalf("Error creating consumer group: %v\n", err)
+	}
 
 	go func() {
-		log.Println("Started Redis subscription for URL mappings...")
-		for msg := range subscriber.Channel() {
-			log.Printf("Received message from Redis: %s\n", msg.Payload)
-
-			// Unmarshal the JSON payload to extract the URL mapping
-			var mapping URLMapping
-			if err := json.Unmarshal([]byte(msg.Payload), &mapping); err != nil {
-				log.Printf("Error unmarshalling message: %v\n", err)
+		for {
+			// Read from Redis Stream
+			streams, err := redisClient.XReadGroup(ctx, &redis.XReadGroupArgs{
+				Group:    groupName,
+				Consumer: consumerName,
+				Streams:  []string{streamName, ">"},
+				Count:    1,
+				Block:    0,
+			}).Result()
+			if err != nil {
+				log.Printf("Error reading from Redis Stream: %v\n", err)
 				continue
 			}
 
-			// Log the received URL mapping
-			log.Printf("Storing URL mapping in Redis: %s -> %s\n", mapping.ShortURL, mapping.LongURL)
+			for _, stream := range streams {
+				for _, message := range stream.Messages {
+					// Extract and parse the data field from the message
+					data, ok := message.Values["data"].(string)
+					if !ok {
+						log.Printf("Data field missing or of wrong type in message: %v\n", message.Values)
+						continue
+					}
+					
+					var mapping URLMapping
+					if err := json.Unmarshal([]byte(data), &mapping); err != nil {
+						log.Printf("Error unmarshalling message: %v\n", err)
+						continue
+					}
 
-			// Store the URL mapping in Redis
-			err := redisClient.Set(ctx, mapping.ShortURL, mapping.LongURL, 0).Err()
-			if err != nil {
-				log.Printf("Error storing URL mapping in Redis: %v\n", err)
-			} else {
-				log.Printf("Successfully stored URL mapping in Redis: %s -> %s\n", mapping.ShortURL, mapping.LongURL)
+					// Log the received URL mapping
+					log.Printf("Storing URL mapping in Redis: %s -> %s\n", mapping.ShortURL, mapping.LongURL)
+
+					// Store the URL mapping in Redis
+					err := redisClient.Set(ctx, mapping.ShortURL, mapping.LongURL, 0).Err()
+					if err != nil {
+						log.Printf("Error storing URL mapping in Redis: %v\n", err)
+					} else {
+						log.Printf("Successfully stored URL mapping in Redis: %s -> %s\n", mapping.ShortURL, mapping.LongURL)
+					}
+
+					// Acknowledge message
+					redisClient.XAck(ctx, streamName, groupName, message.ID)
+				}
 			}
 		}
 	}()
