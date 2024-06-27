@@ -7,9 +7,15 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     volumes:
-      - ./database:/docker-entrypoint-initdb.d  # Mount the database initialization script
+      - ./database:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
 
   url_shortening_service:
     build:
@@ -21,8 +27,10 @@ services:
       FLASK_ENV: development
       FLASK_APP: app
       SQLALCHEMY_DATABASE_URI: postgresql://user:password@db:5432/url_shortener_db
+      REDIS_HOST: redis
     depends_on:
       - db
+      - redis
   
   redirection_service:
     build:
@@ -31,4 +39,4 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - redis

@@ -1,43 +1,52 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
+	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
+	"sync"
 
-	_ "github.com/lib/pq"
+	"github.com/go-redis/redis/v8"
 )
 
-// Database connection string
-const (
-	host     = "db"
-	port     = 5432
-	user     = "user"
-	password = "password"
-	dbname   = "url_shortener_db"
+var (
+	urlMappings = make(map[string]string)
+	mu          sync.RWMutex
+	redisClient *redis.Client
 )
 
-var db *sql.DB
+type URLMapping struct {
+	ShortURL string `json:"short_url"`
+	LongURL  string `json:"long_url"`
+}
 
 func main() {
-	// Setup database connection
-	dbInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	// Setup Redis client
+	redisClient = redis.NewClient(&redis.Options{
+		Addr: "redis:6379",
+	})
+	ctx := context.Background()
 
-	var err error
-	db, err = sql.Open("postgres", dbInfo)
-	if err != nil {
-		log.Fatalf("Error opening database connection: %v\n", err)
-	}
-	defer db.Close()
+	// Subscribe to Redis channel
+	subscriber := redisClient.Subscribe(ctx, "url_channel")
+	defer subscriber.Close()
 
-	// Test database connection
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Error connecting to database: %v\n", err)
-	}
+	go func() {
+		for msg := range subscriber.Channel() {
+			var mapping URLMapping
+			if err := json.Unmarshal([]byte(msg.Payload), &mapping); err != nil {
+				log.Printf("Error unmarshalling message: %v\n", err)
+				continue
+			}
+
+			// Store the URL mapping in memory
+			mu.Lock()
+			urlMappings[mapping.ShortURL] = mapping.LongURL
+			mu.Unlock()
+		}
+	}()
 
 	// Setup HTTP server
 	http.HandleFunc("/", redirectHandler)
@@ -56,14 +65,12 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var longURL string
-	err := db.QueryRow("SELECT long_url FROM urls WHERE short_url = $1", shortURL).Scan(&longURL)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Short URL not found", http.StatusNotFound)
-		} else {
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
+	mu.RLock()
+	longURL, exists := urlMappings[shortURL]
+	mu.RUnlock()
+
+	if !exists {
+		http.Error(w, "Short URL not found", http.StatusNotFound)
 		return
 	}
 

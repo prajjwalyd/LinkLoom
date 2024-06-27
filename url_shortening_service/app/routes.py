@@ -3,6 +3,15 @@ from app import app, db
 from app.models import URL, Analytics
 import random
 import string
+import redis
+import json
+
+# Redis configuration
+redis_host = "redis"
+redis_port = 6379
+redis_channel = "url_channel"
+
+redis_client = redis.StrictRedis(host=redis_host, port=redis_port, decode_responses=True)
 
 def generate_short_url():
     characters = string.ascii_letters + string.digits
@@ -30,24 +39,14 @@ def shorten_url():
     db.session.add(new_url)
     db.session.commit()
 
+    # Publish to Redis
+    redis_data = {
+        'long_url': long_url,
+        'short_url': short_url
+    }
+    redis_client.publish(redis_channel, json.dumps(redis_data))
+
     return jsonify({
         'short_url': short_url,
         'long_url': long_url
     }), 201
-
-@app.route('/<short_url>')
-def redirect_to_long_url(short_url):
-    url = URL.query.filter_by(short_url=short_url).first()
-    if url:
-        # Update analytics (click count and last clicked time)
-        analytics = Analytics.query.filter_by(short_url_id=url.id).first()
-        if analytics:
-            analytics.click_count += 1
-            analytics.last_clicked = db.func.current_timestamp()
-        else:
-            new_analytics = Analytics(short_url_id=url.id, click_count=1, last_clicked=db.func.current_timestamp())
-            db.session.add(new_analytics)
-        db.session.commit()
-        return redirect(url.long_url)
-    else:
-        return jsonify({'error': 'Short URL not found'}), 404
