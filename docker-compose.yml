@@ -7,7 +7,8 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
     volumes:
-      - ./database:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data  # Persist PostgreSQL data
+      - ./database:/docker-entrypoint-initdb.d  # Initialization scripts
     ports:
       - "5432:5432"
 
@@ -16,6 +17,8 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data  # Persist Redis data
 
   url_shortening_service:
     build:
@@ -40,3 +43,7 @@ services:
       - "8080:8080"
     depends_on:
       - redis
+
+volumes:
+  postgres_data:
+  redis_data:
