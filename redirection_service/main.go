@@ -3,17 +3,15 @@ package main
 import (
 	"context"
 	"encoding/json"
+	_ "fmt"
 	"log"
 	"net/http"
 	"os"
-	"sync"
 
 	"github.com/go-redis/redis/v8"
 )
 
 var (
-	urlMappings = make(map[string]string)
-	mu          sync.RWMutex
 	redisClient *redis.Client
 )
 
@@ -34,17 +32,27 @@ func main() {
 	defer subscriber.Close()
 
 	go func() {
+		log.Println("Started Redis subscription for URL mappings...")
 		for msg := range subscriber.Channel() {
+			log.Printf("Received message from Redis: %s\n", msg.Payload)
+
+			// Unmarshal the JSON payload to extract the URL mapping
 			var mapping URLMapping
 			if err := json.Unmarshal([]byte(msg.Payload), &mapping); err != nil {
 				log.Printf("Error unmarshalling message: %v\n", err)
 				continue
 			}
 
-			// Store the URL mapping in memory
-			mu.Lock()
-			urlMappings[mapping.ShortURL] = mapping.LongURL
-			mu.Unlock()
+			// Log the received URL mapping
+			log.Printf("Storing URL mapping in Redis: %s -> %s\n", mapping.ShortURL, mapping.LongURL)
+
+			// Store the URL mapping in Redis
+			err := redisClient.Set(ctx, mapping.ShortURL, mapping.LongURL, 0).Err()
+			if err != nil {
+				log.Printf("Error storing URL mapping in Redis: %v\n", err)
+			} else {
+				log.Printf("Successfully stored URL mapping in Redis: %s -> %s\n", mapping.ShortURL, mapping.LongURL)
+			}
 		}
 	}()
 
@@ -65,14 +73,19 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	mu.RLock()
-	longURL, exists := urlMappings[shortURL]
-	mu.RUnlock()
-
-	if !exists {
+	// Retrieve the long URL from Redis
+	ctx := context.Background()
+	longURL, err := redisClient.Get(ctx, shortURL).Result()
+	if err == redis.Nil {
 		http.Error(w, "Short URL not found", http.StatusNotFound)
 		return
+	} else if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
 	}
+
+	// Log the redirection
+	log.Printf("Redirecting: %s -> %s\n", shortURL, longURL)
 
 	// Redirect to long URL
 	http.Redirect(w, r, longURL, http.StatusFound)
