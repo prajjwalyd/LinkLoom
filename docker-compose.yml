@@ -1,24 +1,24 @@
 services:
-  analytics_db:
+  analytics-db:
     image: postgres:13
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: analytics_db
+      POSTGRES_DB: analytics-db
     ports:
       - "5432:5432"
     volumes:
       # - analytics_data:/var/lib/postgresql/data
       - ./analytics/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d analytics_db"]
+      test: ["CMD-SHELL", "pg_isready -U user -d analytics-db"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  mongo_db:
+  mongo-db:
     image: mongo:4.4
-    hostname: test_mongodb
+    hostname: testmongodb
     environment:
       MONGO_INITDB_DATABASE: url_db
       MONGO_INITDB_ROOT_USERNAME: root
@@ -30,39 +30,39 @@ services:
     #   - ./api/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
 
 
-  url_shortener:
-    build: ./url_shortener
+  url-shortener:
+    build: ./url-shortener
     ports:
       - "5001:5001"
 
-  qr_code_generator:
-    build: ./qr_code_generator
+  qr-code-generator:
+    build: ./qr-code-generator
     ports:
       - "5002:5002"
 
   analytics:
     build: ./analytics
     depends_on:
-      analytics_db:
+      analytics-db:
         condition: service_healthy
     links:
-      - analytics_db
+      - analytics-db
     ports:
       - "5003:5003"
     # environment:
-    #   - SQLALCHEMY_DATABASE_URI=postgresql://analytics_user:your_password@analytics_db:5432/analytics_db
+    #   - SQLALCHEMY_DATABASE_URI=postgresql://analytics_user:your_password@analytics-db:5432/analytics-db
 
   api:
     build: ./api
     depends_on:
-      - url_shortener
-      - qr_code_generator
+      - url-shortener
+      - qr-code-generator
       - analytics
-      - mongo_db
+      - mongo-db
     ports:
       - "5000:5000"
     # environment:
-    #   - MONGO_URI=mongodb://root:example@mongo_db:27017/url_db
+    #   - MONGO_URI=mongodb://root:example@mongo-db:27017/url_db
 
 # volumes:
 #   analytics_data:

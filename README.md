@@ -5,7 +5,7 @@ docker system prune --volumes
 
 # Mongo
 ```
-docker-compose exec mongo_db bash
+docker-compose exec mongo-db bash
 mongo -u root -p example --authenticationDatabase admin
 use url_db
 db.entries.find().pretty()
@@ -14,8 +14,8 @@ db.entries.find().pretty()
 # Postgres
 
 ```
-docker-compose exec analytics_db bash
-psql -U user -d analytics_db
+docker-compose exec analytics-db bash
+psql -U user -d analytics-db
 \dt
 
 # or

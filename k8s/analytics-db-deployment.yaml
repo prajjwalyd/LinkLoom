@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.34.0 (HEAD)
+  labels:
+    io.kompose.service: analytics-db
+  name: analytics-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: analytics-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.34.0 (HEAD)
+      labels:
+        io.kompose.service: analytics-db
+    spec:
+      containers:
+        - env:
+            - name: POSTGRES_DB
+              value: analytics-db
+            - name: POSTGRES_PASSWORD
+              value: password
+            - name: POSTGRES_USER
+              value: user
+          image: postgres:13
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready -U user -d analytics-db
+            failureThreshold: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+          name: analytics-db
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d/init.sql
+              name: analytics-db-cm0
+              subPath: init.sql
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            items:
+              - key: init.sql
+                path: init.sql
+            name: analytics-db-cm0
+          name: analytics-db-cm0

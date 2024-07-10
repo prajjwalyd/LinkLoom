@@ -5,8 +5,8 @@ import io
 
 app = Flask(__name__)
 
-# client = MongoClient('mongodb://root:example@mongo_db:27017/url_db')
-client = MongoClient(host='test_mongodb', port=27017, username='root', password='example', authSource="admin")
+# client = MongoClient('mongodb://root:example@mongo-db:27017/url_db')
+client = MongoClient(host='testmongodb', port=27017, username='root', password='example', authSource="admin")
 db = client.url_db
 
 @app.route('/create', methods=['POST'])
@@ -21,13 +21,13 @@ def create_entry():
         return jsonify({'error': 'Custom URL already exists'}), 400
     
     # Generate short URL
-    response = requests.post('http://url_shortener:5001/shorten', json={'long_url': long_url, 'custom_url': custom_url})
+    response = requests.post('http://url-shortener:5001/shorten', json={'long_url': long_url, 'custom_url': custom_url})
     short_url = response.json()['short_url']
     
     # Optionally generate QR Code
     qr_code = None
     if generate_qr:
-        qr_response = requests.get(f'http://qr_code_generator:5002/generate_qr', params={'url': long_url})
+        qr_response = requests.get(f'http://qr-code-generator:5002/generate_qr', params={'url': long_url})
         qr_code = qr_response.content
     
     # Save to MongoDB

@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@analytics_db:5432/analytics_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@analytics-db:5432/analytics-db'
 db = SQLAlchemy(app)
 
 class Analytics(db.Model):

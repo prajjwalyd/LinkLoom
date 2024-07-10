@@ -1,4 +1,4 @@
-module qr_code_generator
+module qr-code-generator
 
 go 1.22.3
 
