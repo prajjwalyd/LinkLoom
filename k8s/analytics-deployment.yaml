@@ -21,7 +21,7 @@ spec:
         io.kompose.service: analytics
     spec:
       containers:
-        - image: analytics
+        - image: docker.io/prajjwalyd/analytics
           name: analytics
           ports:
             - containerPort: 5003

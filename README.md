@@ -28,3 +28,12 @@ SELECT * FROM analytics;
 
 docker-compose up --build
 docker-compose down
+
+```
+minikube start
+kubectl apply -f k8s
+kubectl get pods
+
+
+minikube stop
+```

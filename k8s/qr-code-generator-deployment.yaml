@@ -21,7 +21,7 @@ spec:
         io.kompose.service: qr-code-generator
     spec:
       containers:
-        - image: qr-code-generator
+        - image: docker.io/prajjwalyd/qr-code-generator
           name: qr-code-generator
           ports:
             - containerPort: 5002

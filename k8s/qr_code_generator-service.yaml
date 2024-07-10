@@ -12,5 +12,7 @@ spec:
     - name: "5002"
       port: 5002
       targetPort: 5002
+      nodePort: 30002
   selector:
     io.kompose.service: qr-code-generator
+  type: NodePort

@@ -21,7 +21,7 @@ spec:
         io.kompose.service: url-shortener
     spec:
       containers:
-        - image: url-shortener
+        - image: docker.io/prajjwalyd/url-shortener
           name: url-shortener
           ports:
             - containerPort: 5001
