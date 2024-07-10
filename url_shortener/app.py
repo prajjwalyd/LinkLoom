@@ -12,7 +12,13 @@ def generate_short_url():
 def shorten_url():
     data = request.get_json()
     long_url = data['long_url']
-    short_url = generate_short_url()
+    custom_url = data.get('custom_url')
+
+    if custom_url:
+        short_url = custom_url
+    else:
+        short_url = generate_short_url()
+    
     return jsonify({'short_url': short_url, 'long_url': long_url})
 
 if __name__ == '__main__':
