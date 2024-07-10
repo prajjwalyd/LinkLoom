@@ -1,49 +1,69 @@
 services:
-  db:
-    image: postgres:latest
-    restart: always
+  analytics_db:
+    image: postgres:13
     environment:
-      POSTGRES_DB: url_shortener_db
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data  # Persist PostgreSQL data
-      - ./database:/docker-entrypoint-initdb.d  # Initialization scripts
+      POSTGRES_DB: analytics_db
     ports:
       - "5432:5432"
-
-  redis:
-    image: redis:latest
-    restart: always
-    ports:
-      - "6379:6379"
     volumes:
-      - redis_data:/data  # Persist Redis data
+      # - analytics_data:/var/lib/postgresql/data
+      - ./analytics_service/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d analytics_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  url_shortening_service:
-    build:
-      context: ./url_shortening_service
-    restart: always
+  mongo_db:
+    image: mongo:4.4
+    hostname: test_mongodb
+    environment:
+      MONGO_INITDB_DATABASE: url_service_db
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    # volumes:
+    #   # - mongo_data:/data/db
+    #   - ./api_service/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+
+
+  url_shortener:
+    build: ./url_shortener
+    ports:
+      - "5001:5001"
+
+  qr_code_generator:
+    build: ./qr_code_generator
+    ports:
+      - "5002:5002"
+
+  analytics_service:
+    build: ./analytics_service
+    depends_on:
+      analytics_db:
+        condition: service_healthy
+    links:
+      - analytics_db
+    ports:
+      - "5003:5003"
+    # environment:
+    #   - SQLALCHEMY_DATABASE_URI=postgresql://analytics_user:your_password@analytics_db:5432/analytics_db
+
+  api_service:
+    build: ./api_service
+    depends_on:
+      - url_shortener
+      - qr_code_generator
+      - analytics_service
+      - mongo_db
     ports:
       - "5000:5000"
-    environment:
-      FLASK_ENV: development
-      FLASK_APP: app
-      SQLALCHEMY_DATABASE_URI: postgresql://user:password@db:5432/url_shortener_db
-      REDIS_HOST: redis
-    depends_on:
-      - db
-      - redis
-  
-  redirection_service:
-    build:
-      context: ./redirection_service
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - redis
+    # environment:
+    #   - MONGO_URI=mongodb://root:example@mongo_db:27017/url_service_db
 
-volumes:
-  postgres_data:
-  redis_data:
+# volumes:
+#   analytics_data:
+#   mongo_data:

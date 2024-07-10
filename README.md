@@ -1,31 +1,30 @@
-# url-shortner
+# LinkLoom
 
-# python venv
+
+docker system prune --volumes
+
+# Mongo
 ```
-python -m venv venv
-source venv/bin/activate
-
-deactivate
-```
-
-# docker compose
-```
-docker-compose build
-
-docker-compose up -d
-
+docker-compose exec mongo_db bash
+mongo -u root -p example --authenticationDatabase admin
+use url_service_db
+db.entries.find().pretty()
 ```
 
-# Access PostgreSQL container shell
-docker-compose exec db psql -U user -d url_shortener_db
+# Postgres
 
-### if using docker compose
-docker exec -it url-shortner-db-1 psql -U user -d url_shortener_db
-
-
-# Once inside the PostgreSQL shell, list tables to verify initialization
+```
+docker-compose exec analytics_db bash
+psql -U user -d analytics_db
 \dt
 
-docker-compose down       # Shut down the containers
-docker-compose build      # Rebuild Docker images
-docker-compose up -d      # Start containers in detached mode
+# or
+
+SELECT * FROM analytics;
+
+# quit
+\q 
+```
+
+docker-compose up --build
+docker-compose down

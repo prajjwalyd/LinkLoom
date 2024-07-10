@@ -1,0 +1,5 @@
+CREATE TABLE analytics (
+    id SERIAL PRIMARY KEY,
+    url VARCHAR NOT NULL,
+    access_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

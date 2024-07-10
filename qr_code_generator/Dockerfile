@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Build the Go application
-RUN go build -o redirection-service .
+RUN go build -o qr_code_generator .
 
 # Use a minimal base image for the final build
 FROM alpine:latest
@@ -17,7 +17,7 @@ FROM alpine:latest
 WORKDIR /app
 
 # Copy the binary from the builder stage
-COPY --from=builder /app/redirection-service .
+COPY --from=builder /app/qr_code_generator .
 
 # Command to run the executable
-CMD ["./redirection-service"]
+CMD ["./qr_code_generator"]
