@@ -7,7 +7,7 @@ docker system prune --volumes
 ```
 docker-compose exec mongo_db bash
 mongo -u root -p example --authenticationDatabase admin
-use url_service_db
+use url_db
 db.entries.find().pretty()
 ```
 

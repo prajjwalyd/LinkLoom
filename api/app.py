@@ -5,9 +5,9 @@ import io
 
 app = Flask(__name__)
 
-# client = MongoClient('mongodb://root:example@mongo_db:27017/url_service_db')
+# client = MongoClient('mongodb://root:example@mongo_db:27017/url_db')
 client = MongoClient(host='test_mongodb', port=27017, username='root', password='example', authSource="admin") 
-db = client.url_service_db
+db = client.url_db
 
 @app.route('/create', methods=['POST'])
 def create_entry():
@@ -34,7 +34,7 @@ def redirect_url(short_url):
         return 'URL not found', 404
     
     # Log access
-    requests.post('http://analytics_service:5003/log', json={'url': entry['long_url']})
+    requests.post('http://analytics:5003/log', json={'url': entry['long_url']})
     
     return jsonify({'long_url': entry['long_url']})
 
@@ -45,7 +45,7 @@ def get_qr_code(short_url):
         return 'QR Code not found', 404
     
     # Log access
-    requests.post('http://analytics_service:5003/log', json={'url': entry['long_url']})
+    requests.post('http://analytics:5003/log', json={'url': entry['long_url']})
     
     return send_file(io.BytesIO(entry['qr_code']), mimetype='image/png')
 

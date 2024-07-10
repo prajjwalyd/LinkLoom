@@ -9,7 +9,7 @@ services:
       - "5432:5432"
     volumes:
       # - analytics_data:/var/lib/postgresql/data
-      - ./analytics_service/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./analytics/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d analytics_db"]
       interval: 5s
@@ -20,14 +20,14 @@ services:
     image: mongo:4.4
     hostname: test_mongodb
     environment:
-      MONGO_INITDB_DATABASE: url_service_db
+      MONGO_INITDB_DATABASE: url_db
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     ports:
       - "27017:27017"
     # volumes:
     #   # - mongo_data:/data/db
-    #   - ./api_service/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+    #   - ./api/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
 
 
   url_shortener:
@@ -40,8 +40,8 @@ services:
     ports:
       - "5002:5002"
 
-  analytics_service:
-    build: ./analytics_service
+  analytics:
+    build: ./analytics
     depends_on:
       analytics_db:
         condition: service_healthy
@@ -52,17 +52,17 @@ services:
     # environment:
     #   - SQLALCHEMY_DATABASE_URI=postgresql://analytics_user:your_password@analytics_db:5432/analytics_db
 
-  api_service:
-    build: ./api_service
+  api:
+    build: ./api
     depends_on:
       - url_shortener
       - qr_code_generator
-      - analytics_service
+      - analytics
       - mongo_db
     ports:
       - "5000:5000"
     # environment:
-    #   - MONGO_URI=mongodb://root:example@mongo_db:27017/url_service_db
+    #   - MONGO_URI=mongodb://root:example@mongo_db:27017/url_db
 
 # volumes:
 #   analytics_data:

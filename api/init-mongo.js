@@ -5,7 +5,7 @@ db.createUser(
         roles: [
             {
                 role: "readWrite",
-                db: "url_service_db"
+                db: "url_db"
             }
         ]
     }
