@@ -1,13 +1,25 @@
 from flask import Flask, request, jsonify, send_file, redirect
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 import requests
 import io
+import logging
 
 app = Flask(__name__)
 
-# client = MongoClient('mongodb://root:example@mongo-db:27017/url_db')
-client = MongoClient(host='testmongodb', port=27017, username='root', password='example', authSource="admin")
-db = client.url_db
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+
+try:
+    client = MongoClient('mongodb://root:example@my-mongo-mongodb:27017/url_db')
+    db = client.url_db
+    logging.info("Connected to MongoDB successfully.")
+except errors.ServerSelectionTimeoutError as err:
+    logging.error("Failed to connect to MongoDB: %s", err)
+
+
+
+# client = MongoClient(host='testmongodb', port=27017, username='root', password='example', authSource="admin")
+# db = client.url_db
 
 @app.route('/create', methods=['POST'])
 def create_entry():

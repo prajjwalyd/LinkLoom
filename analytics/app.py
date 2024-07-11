@@ -1,10 +1,21 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@analytics-db:5432/analytics-db'
-db = SQLAlchemy(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@my-postgresql-postgresql:5432/analytics-db'
+
+try:
+    db = SQLAlchemy(app)
+    logger.info("Successfully connected to the database")
+except Exception as e:
+    logger.error("Error connecting to the database: %s", e)
+    raise
 
 class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True)

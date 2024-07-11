@@ -1,6 +1,8 @@
-apiVersion: v1
-data:
-  init.sql: |-
+postgresqlUsername: user
+postgresqlPassword: password
+postgresqlDatabase: analytics-db
+initdbScripts:
+  init.sql: |
     CREATE TABLE IF NOT EXISTS analytics (
         id SERIAL PRIMARY KEY,
         url VARCHAR NOT NULL,
@@ -9,10 +11,3 @@ data:
         user_agent VARCHAR NOT NULL,
         referrer VARCHAR
     );
-kind: ConfigMap
-metadata:
-  annotations:
-    use-subpath: "true"
-  labels:
-    io.kompose.service: analytics-db
-  name: analytics-db-cm0
