@@ -12,5 +12,7 @@ spec:
     - name: "27017"
       port: 27017
       targetPort: 27017
+      nodePort: 30005
   selector:
     io.kompose.service: mongo-db
+  type: NodePort
