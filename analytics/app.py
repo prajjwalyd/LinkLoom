@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@my-postgresql-postgresql:5432/analytics-db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@my-postgresql:5432/analytics-db'
 
 try:
     db = SQLAlchemy(app)
