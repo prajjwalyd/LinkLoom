@@ -1,13 +1,24 @@
-postgresqlUsername: user
-postgresqlPassword: password
-postgresqlDatabase: analytics-db
-initdbScripts:
-  init.sql: |
-    CREATE TABLE IF NOT EXISTS analytics (
-        id SERIAL PRIMARY KEY,
-        url VARCHAR NOT NULL,
-        access_time TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        ip_address VARCHAR NOT NULL,
-        user_agent VARCHAR NOT NULL,
-        referrer VARCHAR
-    );
+global:
+  postgresql:
+    auth:
+      postgresPassword: "new_password"
+      username: "user"
+      password: "password"
+      database: "analytics-db"
+
+image:
+  debug: true
+
+  initdb:
+    user: "user"
+    password: "password"
+    scripts:
+      init.sql: |
+        CREATE TABLE IF NOT EXISTS analytics (
+          id SERIAL PRIMARY KEY,
+          url VARCHAR NOT NULL,
+          access_time TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+          ip_address VARCHAR NOT NULL,
+          user_agent VARCHAR NOT NULL,
+          referrer VARCHAR
+        );
