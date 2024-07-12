@@ -12,14 +12,14 @@ jobs:
     services:
       docker:
         image: docker:latest
-        options: --privileged
-        ports:
-          - 5432:5432
-          - 27017:27017
-          - 5000:5000
-          - 5001:5001
-          - 5002:5002
-          - 5003:5003
+        # options: --privileged
+        # ports:
+        #   - 5432:5432
+        #   - 27017:27017
+        #   - 5000:5000
+        #   - 5001:5001
+        #   - 5002:5002
+        #   - 5003:5003
 
     steps:
       - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
           docker build -t docker.io/prajjwalyd/analytics:latest ./analytics
 
       - name: Start services
-        run: docker-compose up -d
+        run: docker-compose up --build
 
       - name: Run integration tests
         run: |
