@@ -19,22 +19,22 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push API image
+      - name: Build and push api image
         run: |
           docker build -t docker.io/prajjwalyd/api:latest ./api
           docker push docker.io/prajjwalyd/api:latest
 
-      - name: Build and push URL-Shortener image
+      - name: Build and push url-shortener image
         run: |
           docker build -t docker.io/prajjwalyd/url-shortener:latest ./url-shortener
           docker push docker.io/prajjwalyd/url-shortener:latest
 
-      - name: Build and push QR-Code-Generator image
+      - name: Build and push qr-code-generator image
         run: |
           docker build -t docker.io/prajjwalyd/qr-code-generator:latest ./qr-code-generator
           docker push docker.io/prajjwalyd/qr-code-generator:latest
 
-      - name: Build and push Analytics image
+      - name: Build and push analytics image
         run: |
           docker build -t docker.io/prajjwalyd/analytics:latest ./analytics
           docker push docker.io/prajjwalyd/analytics:latest

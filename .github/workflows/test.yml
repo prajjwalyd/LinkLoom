@@ -14,9 +14,8 @@ jobs:
         working-directory: qr-code-generator
         run: go test -v ./...
 
-      - name: pip install
-        run: pip install flask pytest
-
       - name: Run tests for URL Shortener
         working-directory: url-shortener
-        run: pytest test_url_shortener.py
+        run: |
+          pip install -r requirements.txt
+          pytest test_url_shortener.py
