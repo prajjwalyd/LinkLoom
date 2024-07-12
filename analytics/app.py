@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-metrics = PrometheusMetrics(app)
+metrics = PrometheusMetrics(app, group_by='endpoint')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@my-postgresql:5432/analytics-db'
 
 try:

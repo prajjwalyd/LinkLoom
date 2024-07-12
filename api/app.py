@@ -6,7 +6,7 @@ import io
 import logging
 
 app = Flask(__name__)
-metrics = PrometheusMetrics(app)
+metrics = PrometheusMetrics(app, group_by='endpoint')
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)

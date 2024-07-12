@@ -4,7 +4,7 @@ import random
 import string
 
 app = Flask(__name__)
-metrics = PrometheusMetrics(app)
+metrics = PrometheusMetrics(app, group_by='endpoint')
 
 # Function to generate a random short URL
 def generate_short_url():
