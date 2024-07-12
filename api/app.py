@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify, send_file, redirect
 from pymongo import MongoClient, errors
+from prometheus_flask_exporter import PrometheusMetrics
 import requests
 import io
 import logging
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)

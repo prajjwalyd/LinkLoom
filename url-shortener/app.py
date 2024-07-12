@@ -1,8 +1,10 @@
 from flask import Flask, request, jsonify, abort
+from prometheus_flask_exporter import PrometheusMetrics
 import random
 import string
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 
 # Function to generate a random short URL
 def generate_short_url():

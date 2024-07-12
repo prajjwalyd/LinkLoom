@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from prometheus_flask_exporter import PrometheusMetrics
 from datetime import datetime
 import logging
 
@@ -8,6 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+metrics = PrometheusMetrics(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://user:password@my-postgresql:5432/analytics-db'
 
 try:
