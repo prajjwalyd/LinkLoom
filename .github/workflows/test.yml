@@ -9,7 +9,7 @@ jobs:
     steps:
       - name: Run tests for QR Code Generator
         working-directory: qr-code-generator
-        run: go test -v ./...
+        run: go test
 
       - name: Install pytest
         run: pip install flask pytest
