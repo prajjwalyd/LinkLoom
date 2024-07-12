@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, abort
 import random
 import string
 
@@ -11,6 +11,9 @@ def generate_short_url():
 @app.route('/shorten', methods=['POST'])
 def shorten_url():
     data = request.get_json()
+    if not data or 'long_url' not in data:
+        abort(400, description="Invalid request: 'long_url' is required")
+
     long_url = data['long_url']
     custom_url = data.get('custom_url')
 
