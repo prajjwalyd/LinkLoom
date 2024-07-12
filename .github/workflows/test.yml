@@ -1,0 +1,19 @@
+name: Test
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run tests for QR Code Generator
+        working-directory: qr-code-generator
+        run: go test -v ./...
+
+      - name: Install pytest
+        run: pip install flask pytest
+
+      - name: Run tests for URL Shortener
+        working-directory: url-shortener
+        run: pytest test_url_shortener.py
