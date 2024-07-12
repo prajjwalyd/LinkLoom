@@ -8,6 +8,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:latest
+        options: --privileged
+        ports:
+          - 5432:5432
+          - 27017:27017
+          - 5000:5000
+          - 5001:5001
+          - 5002:5002
+          - 5003:5003
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -21,22 +34,28 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push API image
+      - name: Build Docker images
         run: |
           docker build -t docker.io/prajjwalyd/api:latest ./api
-          docker push docker.io/prajjwalyd/api:latest
-
-      - name: Build and push URL-Shortener image
-        run: |
           docker build -t docker.io/prajjwalyd/url-shortener:latest ./url-shortener
-          docker push docker.io/prajjwalyd/url-shortener:latest
-
-      - name: Build and push QR-Code-Generator image
-        run: |
           docker build -t docker.io/prajjwalyd/qr-code-generator:latest ./qr-code-generator
-          docker push docker.io/prajjwalyd/qr-code-generator:latest
-
-      - name: Build and push Analytics image
-        run: |
           docker build -t docker.io/prajjwalyd/analytics:latest ./analytics
+
+      - name: Start services
+        run: docker-compose up -d
+
+      - name: Run integration tests
+        run: |
+          pip install requests
+          python test_integration.py
+
+      - name: Tear down services
+        run: docker-compose down
+
+      - name: Push Docker images
+        if: success()
+        run: |
+          docker push docker.io/prajjwalyd/api:latest
+          docker push docker.io/prajjwalyd/url-shortener:latest
+          docker push docker.io/prajjwalyd/qr-code-generator:latest
           docker push docker.io/prajjwalyd/analytics:latest
