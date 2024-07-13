@@ -23,8 +23,7 @@
   "panels": [
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "cdrjwoixqnpq8a"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -102,8 +101,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "cdrjwoixqnpq8a"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(flask_http_request_total{job=~\"analytics|api|qr-code-generator|url-shortener\"}) by (job, method, status)",
@@ -118,8 +116,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "cdrjwoixqnpq8a"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -222,8 +219,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "cdrjwoixqnpq8a"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "sum(rate(process_cpu_seconds_total{job=~\"analytics|api|qr-code-generator|url-shortener\"}[5m])) by (job)",
@@ -238,8 +234,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "cdrjwoixqnpq8a"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -317,8 +312,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "cdrjwoixqnpq8a"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "rate(flask_http_request_duration_seconds_sum{job=\"api\"}[5m]) / rate(flask_http_request_duration_seconds_count{job=\"api\"}[5m])",
@@ -333,8 +327,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "cdrjwoixqnpq8a"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -412,8 +405,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "cdrjwoixqnpq8a"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "go_memstats_alloc_bytes{job=\"qr-code-generator\"}",
@@ -428,8 +420,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "cdrjwoixqnpq8a"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -507,8 +498,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "cdrjwoixqnpq8a"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "flask_http_request_total{job=\"url-shortener\"}",
@@ -523,8 +513,7 @@
     },
     {
       "datasource": {
-        "type": "prometheus",
-        "uid": "cdrjwoixqnpq8a"
+        "type": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
@@ -602,8 +591,7 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "cdrjwoixqnpq8a"
+            "type": "prometheus"
           },
           "editorMode": "code",
           "expr": "avg(process_resident_memory_bytes{job=~\"analytics|api|qr-code-generator|url-shortener\"}) by (job)",
