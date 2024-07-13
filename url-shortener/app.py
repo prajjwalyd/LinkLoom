@@ -6,7 +6,6 @@ import string
 app = Flask(__name__)
 metrics = PrometheusMetrics(app, group_by='endpoint')
 
-# Function to generate a random short URL
 def generate_short_url():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
 

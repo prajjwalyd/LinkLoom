@@ -8,20 +8,16 @@ import logging
 app = Flask(__name__)
 metrics = PrometheusMetrics(app, group_by='endpoint')
 
-# Set up logging
 logging.basicConfig(level=logging.DEBUG)
 
 try:
     client = MongoClient('mongodb://root:example@my-mongo-mongodb:27017/url_db')
+    # if using docker-compose then,
+    # client = MongoClient('mongodb://root:example@mongo-db:27017/url_db')
     db = client.url_db
     logging.info("Connected to MongoDB successfully.")
 except errors.ServerSelectionTimeoutError as err:
     logging.error("Failed to connect to MongoDB: %s", err)
-
-
-
-# client = MongoClient(host='testmongodb', port=27017, username='root', password='example', authSource="admin")
-# db = client.url_db
 
 @app.route('/create', methods=['POST'])
 def create_entry():
@@ -30,11 +26,9 @@ def create_entry():
     custom_url = data.get('custom_url')
     generate_qr = data.get('generate_qr', False)
     
-    # Check if custom URL already exists
     if custom_url and db.entries.find_one({'short_url': custom_url}):
         return jsonify({'error': 'Custom URL already exists'}), 400
     
-    # Generate short URL
     response = requests.post('http://url-shortener:5001/shorten', json={'long_url': long_url, 'custom_url': custom_url})
     short_url = response.json()['short_url']
     
@@ -44,7 +38,6 @@ def create_entry():
         qr_response = requests.get(f'http://qr-code-generator:5002/generate_qr', params={'url': long_url})
         qr_code = qr_response.content
     
-    # Save to MongoDB
     db.entries.insert_one({'long_url': long_url, 'short_url': short_url, 'qr_code': qr_code})
     
     return jsonify({'short_url': short_url, 'long_url': long_url})
