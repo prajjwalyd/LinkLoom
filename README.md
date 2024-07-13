@@ -1,10 +1,11 @@
 # LinkLoom🔗
 
-LinkLoom is a microservice application designed to manage URLs, providing URL shortening, QR code generation, analytics logging, and an integrated API service. These services are loosely coupled, and the application is deployed on a local Kubernetes cluster using Minikube (due to the cost considerations of EKS 😅). Helm is utilized to manage deployments of MongoDB and PostgreSQL, alongside Prometheus and Grafana for monitoring purposes.
+LinkLoom is a microservice application designed to manage URLs, providing URL shortening, QR code generation, analytics logging, and an integrated API service. These services are loosely coupled, and the application is deployed on a local Kubernetes cluster using Minikube (due to the cost considerations of EKS 😅). Helm is utilized to manage deployments of MongoDB and PostgreSQL, alongside Prometheus and Grafana for monitoring purposes. CI/CD pipeline is implemented using GitHub Actions to automate build, test, and deployment processes.
+
+🎥 Watch the full project setup here: https://youtu.be/UUu3EVSBkLc
 
 [![Tech Stack](https://skillicons.dev/icons?i=flask,python,go,postgres,mongodb,githubactions,docker,k8s,prometheus,grafana)](https://skillicons.dev)
 
----
 ## Architecture Overview:
 ```mermaid
 graph LR
@@ -62,24 +63,24 @@ graph LR
 
 ## Components:
 
-1. **URL Shortener Service**
+1. **URL Shortener Service** (Flask)
    - **Description:** Provides functionality to shorten URLs, supporting custom short URLs.
    - **Endpoint:** `/shorten`
    - **Docker Image:** `docker.io/prajjwalyd/url-shortener`
 
-2. **QR Code Generator Service**
+2. **QR Code Generator Service** (Golang)
    - **Description:** Generates QR codes for given URLs.
    - **Endpoint:** `/generate_qr`
    - **Docker Image:** `docker.io/prajjwalyd/qr-code-generator`
 
-3. **Analytics Service**
+3. **Analytics Service** (Flask)
    - **Description:** Logs analytics data (access time, IP, user agent, referrer) into a PostgreSQL database.
    - **Endpoints:** 
      - `/log` (for logging access)
      - `/<short_url>/analytics` (to retrieve analytics for a given short URL)
    - **Docker Image:** `docker.io/prajjwalyd/analytics`
 
-4. **API Service**
+4. **API Service** (Flask)
    - **Description:** Integrates all services, manages URL mappings and QR codes, stores data in MongoDB, and provides unified endpoints.
    - **Endpoints:** 
      - `/create` (to create a shortened URL and optionally generate QR code)
@@ -89,7 +90,7 @@ graph LR
      - `/<short_url>/analytics` (to fetch analytics data)
    - **Docker Image:** `docker.io/prajjwalyd/api`
 
-    **Prometheus Metrics Endpoint:** Each service exposes `/metrics`.
+**Prometheus Metrics Endpoint:** Each service exposes `/metrics`.
 
 5. **Databases**
    - **MongoDB:** Stores URL mappings and QR codes.
@@ -102,12 +103,15 @@ graph LR
      - Helm Deployment: `prometheus`
    - **Grafana:** Visualizes metrics and provides dashboards.
      - Helm Deployment: `grafana`
+    
 
----
 
 ## Setup and Deployment:
 
-> If you're seeking the quickest and most straightforward method to get the app up and running, I suggest setting it up in a GitHub codespace.
+For the quickest and easiest way to get the app running, I recommend setting it up in a GitHub Codespace. 
+
+> **How to set up on Codespaces?**
+> Watch this video: https://youtu.be/UUu3EVSBkLc
 
 
 #### Local Kubernetes Cluster Setup (Minikube):
@@ -169,7 +173,7 @@ Add Prometheus data source in Grafana with URL `http://prometheus-server.default
 Import the provided [JSON dashboard](https://github.com/prajjwalyd/LinkLoom/blob/main/LinkLoom-grafana.json) file for metrics visualization.
 
 
-#### Testing Endpoints:
+## Testing Endpoints:
 - Find your Minikube IP:
 ```
 minikube ip
@@ -178,7 +182,7 @@ minikube ip
 ```
 kubectl port-forward service/api 30000:5000
 ```
-- Curl commands:
+- curl commands:
 ```
 # Replace `http://192.168.49.2` with your minikube IP
 
