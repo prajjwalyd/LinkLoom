@@ -1,8 +1,8 @@
 # LinkLoom🔗
 
-LinkLoom is a microservive application designed to provide URL shortening, QR code generation, analytics logging, and an integrated API service. The app is deployed on a local Kubernetes cluster using Minikube, with Helm managing the deployments of MongoDB, PostgreSQL, Prometheus, and Grafana for monitoring.
+LinkLoom is a microservice application designed to manage URLs, providing URL shortening, QR code generation, analytics logging, and an integrated API service. These services are loosely coupled, and the application is deployed on a local Kubernetes cluster using Minikube (due to the cost considerations of EKS 😅). Helm is utilized to manage deployments of MongoDB and PostgreSQL, alongside Prometheus and Grafana for monitoring purposes.
 
-[![Tech Stack](https://skillicons.dev/icons?i=flask,python,go,postgres,mongodb,docker,githubactions,prometheus,grafana,k8s)](https://skillicons.dev)
+[![Tech Stack](https://skillicons.dev/icons?i=flask,python,go,postgres,mongodb,githubactions,docker,k8s,prometheus,grafana)](https://skillicons.dev)
 
 ---
 ## Architecture Overview:
@@ -107,6 +107,9 @@ graph LR
 
 ## Setup and Deployment:
 
+> If you're seeking the quickest and most straightforward method to get the app up and running, I suggest setting it up in a GitHub codespace.
+
+
 #### Local Kubernetes Cluster Setup (Minikube):
 [Minikube installation guide](https://minikube.sigs.k8s.io/docs/start/)
    ```
@@ -128,16 +131,16 @@ helm install my-mongo bitnami/mongodb --set auth.rootPassword=example,auth.usern
 helm install my-postgresql bitnami/postgresql -f values.yaml
 ```
 
+#### Deploy Services:
+Apply Kubernetes manifests (`k8s/` directory)
+```
+kubectl apply -f k8s
+```
+
 #### Deploy Prometheus and Grafana:
 ```
 helm install prometheus prometheus-community/prometheus -f prometheus.yml
 helm install grafana grafana/grafana
-```
-
-#### Deploy LinkLoom Application:
-Apply Kubernetes manifests (`k8s/` directory)
-```
-kubectl apply -f k8s
 ```
 
 #### Verify Deployment:
