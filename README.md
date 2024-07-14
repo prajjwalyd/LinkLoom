@@ -1,6 +1,6 @@
 # LinkLoom🔗
 
-LinkLoom is a microservice application designed to manage URLs, providing URL shortening, QR code generation, analytics logging, and an integrated API service. These services are loosely coupled, and the application is deployed on a local Kubernetes cluster using Minikube (due to the cost considerations of EKS 😅). Helm is utilized to manage deployments of MongoDB and PostgreSQL, alongside Prometheus and Grafana for monitoring purposes. CI/CD pipeline is implemented using GitHub Actions to automate build, test, and deployment processes.
+LinkLoom is a microservice application designed to manage URLs, providing URL shortening, QR code generation, analytics logging, and an integrated API service. The 4 microservices (1. URL Shortener, 2. QR Code Generator, 3. Analytics, and 4. API) are loosely coupled, and the application is deployed on a local Kubernetes cluster using Minikube (for now). Helm is utilized to manage deployments of MongoDB and PostgreSQL, alongside Prometheus and Grafana for monitoring purposes. CI/CD pipeline is implemented using GitHub Actions to automate build, test, and deployment processes.
 
 🎥 Watch the full project setup here: https://youtu.be/UUu3EVSBkLc
 
@@ -35,13 +35,12 @@ graph LR
     A --> |GET /:short_url/analytics| D
     B --> |Returns short_url| A
     C --> |Returns QR Code| A
-    D <--> |Stores Logs for each short_url| E
+    D <--> |Stores/Fetches Logs for each short_url| E
 
     D --> |Returns analytics| A
     
 
-    A --> |Stores Long URL, Short URL, QR Code| F
-    A --> |Fetches Long URL for Redirection| F
+    A <--> |Stores/Fetches Long URL, Short URL, QR Code| F
 
     B --> |/metrics| G
     C --> |/metrics| G
